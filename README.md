@@ -76,3 +76,31 @@ ctr$value()
 
 See inst/profilingEg/  for an example of how to use this with profiling information.
 
+
+
+
+## Call Stack
+
+It can be useful to collect the call stack so that we can
+see from where it was called.
+From eg.R, 
+```
+source("eg.R")
+st = genStackCollector(num = 500)
+trace(f, st$update, print = FALSE)
+invisible (  k()  )
+z = st$value()
+z[[1]]
+```
+
+
+To get just the names of the functions being called (and not the actual calls
+and arguments), we use `callNames` as a filtering/preprocessing function
+on the calls before we store them:
+```
+st = genStackCollector(callNames, num = 500)
+trace(f, st$update, print = FALSE)
+invisible (  k()  )
+z = st$value()
+z[[1]]
+```
