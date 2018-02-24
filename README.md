@@ -75,3 +75,4 @@ ctr$value()
 
 
 See inst/profilingEg/  for an example of how to use this with profiling information.
+
