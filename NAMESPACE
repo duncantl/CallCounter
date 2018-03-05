@@ -1,4 +1,4 @@
 export(countCalls, countMCalls)
 
-export(genStackCollector, getCallName)
+export(genStackCollector, getCallName, callNames)
 
