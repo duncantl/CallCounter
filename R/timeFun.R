@@ -4,11 +4,11 @@ function()
     startTime = NULL
     times = numeric()
     start = function() {
-        message("start")
+    #    message("start")
         startTime <<- Sys.time()
     }
     end = function() {
-        message("end")
+    #    message("end")
         times[[ length(times) + 1L ]] <<- Sys.time() - startTime
     }
 
@@ -24,7 +24,16 @@ function(fun, tmr = genFunTimer(), where = globalenv())
 }
 
 if(FALSE) {
+
+N = 10
+xx = replicate(N, rnorm(rpois(1, 4000)),  simplify = FALSE)
+a = function(val) {Sys.sleep(1);  median(val [ val > -1 & val < 1 ])}
+    
 tmr = genFunTimer()
 #trace(a, tmr$start, print = FALSE)
-trace(a, quote({tmr$start(); on.exit(tmr$end())}), print = FALSE)
+#trace(a, quote({tmr$start(); on.exit(tmr$end)}), print = FALSE)
+trace(a, tmr$start, exit = tmr$end, print = FALSE)
+
+lapply(xx[1:4], a)
+
 }
