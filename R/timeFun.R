@@ -12,7 +12,7 @@ function()
         times[[ length(times) + 1L ]] <<- Sys.time() - startTime
     }
 
-    list(start = start, end = end, times = function() times)
+    list(start = start, end = end, times = function() times, reset = function() times <<- numeric())
 }
 
 
@@ -29,11 +29,12 @@ N = 10
 xx = replicate(N, rnorm(rpois(1, 4000)),  simplify = FALSE)
 a = function(val) {Sys.sleep(1);  median(val [ val > -1 & val < 1 ])}
     
-tmr = genFunTimer()
+atmr = genFunTimer()
 #trace(a, tmr$start, print = FALSE)
 #trace(a, quote({tmr$start(); on.exit(tmr$end)}), print = FALSE)
-trace(a, tmr$start, exit = tmr$end, print = FALSE)
+trace(a, atmr$start, exit = atmr$end, print = FALSE)
 
 lapply(xx[1:4], a)
 
+untrace(a)
 }
