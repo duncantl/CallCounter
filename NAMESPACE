@@ -7,3 +7,5 @@ export(timeFun)
 
 export(collectArgInfo, gatherArgInfo)
 
+
+export(timeEval, storeEval)
