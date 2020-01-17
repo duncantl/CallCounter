@@ -17,13 +17,21 @@ function()
 
 
 timeFun =
-function(fun, tmr = genFunTimer(), where = globalenv())
+function(fun, tmr = genFunTimer(), where = globalenv(), ...)
 {
-  trace(fun, tmr$start, exit = tmr$end, print = TRUE, where = where)
-  tmr 
+    funName = as.character(substitute(fun))
+    trace(funName, tmr$start, exit = tmr$end, ..., where = where)
+    tmr 
 }
 
 if(FALSE) {
+
+tmr = timeFun(model.matrix)
+lm(mpg ~ . , mtcars)
+tmr$times()
+invisible(replicate(10, lm(mpg ~ . , mtcars)))
+tmr$times()
+
 
 N = 10
 xx = replicate(N, rnorm(rpois(1, 4000)),  simplify = FALSE)
