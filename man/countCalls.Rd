@@ -8,8 +8,9 @@
 }
 \usage{
 countCalls(obj, counter = genCounter(), env = globalenv(), print = FALSE)
-countMCalls(..., counter = genMultiCounter(), env = globalenv(), print = FALSE,
-            funs = substitute(list(...))[-1])
+countMCalls(..., counter = genMultiCounter(funNames), env = globalenv(), print = FALSE,
+            funs = substitute(list(...))[-1],
+            funNames = sapply(funs, as.character))
 }
 \arguments{
   \item{obj,\dots}{the functions either as quoted namesto be }
@@ -20,12 +21,17 @@ countMCalls(..., counter = genMultiCounter(), env = globalenv(), print = FALSE,
     are to be counted. This allows the functions to be specified
     collectively in a list or character vector rather than individually
     via the \dots mechanism. }
+  \item{funNames}{the names of the functions, typically computed from
+    the call itself. These are used to make updating the counts
+    more efficient by not having to check if there is already a named element
+    for the function in the integer vector.}
 }
 \value{
   These function return the counter.
   This is a list with 3 functions
   \item{value}{function to query the current count(s)}
-  \item{reset}{function to reset the count(s) to 0}
+  \item{reset}{function to reset the count(s) to 0, or to create a new
+    empty integer vector if its parameter \code{full} is \code{TRUE} when calling it.}
   \item{inc}{the function called to increment the counter}
 }
 \author{
@@ -39,11 +45,16 @@ ctr = countMCalls(rnorm)
 replicate(10, rnorm(0))
 ctr$value()
 
+ctr$reset()
+replicate(5, rnorm(0))
+ctr$value()
+
 
 ctr = countMCalls(dnorm, rnorm)
 replicate(10, dnorm(0))
 replicate(7, rnorm(1))
 dnorm(1)
 ctr$value()
+
 }
 \keyword{programming}
