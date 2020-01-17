@@ -1,8 +1,14 @@
 Package: CallCounter
 Version: 0.2-0
-Title:  Functions to Count the Number of Calls to Functions
-Description: Counting the number of calls to different functions  can be useful
- when profiling. 
+Title:  Run-time code measurement and debugging tools
+Description: Tools for instrumenting code.
+ These include counting the number of calls to different functions, useful when profiling;
+ collecting the call stack for each call to one or more functions;
+ collecting information about each parameter in alll calls to one or more functions;
+ evaluating code in an R script in various ways to measure the time of each expression,
+ store intermediate results allowing detailed checkpoint comparisons when code changes,
+ determining when the .Random.seed changes;
+ collect times for each call to a function (not just aggregated across all calls as with profiling).
 License: BSD_3_clause + file LICENSE
 Author: Duncan Temple Lang
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
