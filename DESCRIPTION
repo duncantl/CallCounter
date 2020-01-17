@@ -6,3 +6,4 @@ Description: Counting the number of calls to different functions  can be useful
 License: BSD_3_clause + file LICENSE
 Author: Duncan Temple Lang
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
+Imports: CodeDepends

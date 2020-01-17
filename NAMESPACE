@@ -9,3 +9,6 @@ export(collectArgInfo, gatherArgInfo)
 
 
 export(timeEval, storeEval)
+export(seedChangeEval)
+
+importFrom(CodeDepends, getInputs)

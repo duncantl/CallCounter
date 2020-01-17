@@ -45,6 +45,8 @@ f(a)
 
 lm(mpg ~ ., mtcars)
 
+untrace(`[`)
+
 z$value()
 sapply(z$value(), length)
 
