@@ -1,5 +1,5 @@
 Package: CallCounter
-Version: 0.1-0
+Version: 0.2-0
 Title:  Functions to Count the Number of Calls to Functions
 Description: Counting the number of calls to different functions  can be useful
  when profiling. 
