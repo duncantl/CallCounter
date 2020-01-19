@@ -50,9 +50,34 @@ f2 = function(x)
     x + global1
 f3 = function(x, y)
         x + y + global1 + global2
-    
+
+e3 = collectCallResults("f3")
+
+f3(10, 11)
+f3(999, 777)
+k = e3()
+
+# Should be identical since same definition of function
+testFunCall(k, f3)
+
+testFunCall(k, function(x, y) x + y + global1)
+rm(global1)
+testFunCall(k, function(x, y) x + y + global1)
+
+rm(global2)
+testFunCall(k, function(x, y) x + y + global1 + global2)
+
+testFunCall(k, f3)
+
+
+# perversely check not equal!
+testFunCall(k, f3, compare = `!=`)
+
+testFunCall(k, function(x, y) 1)
 }
 
+
+if(FALSE) {
 collectCallResults =
     # Don't build on collectArgInfo() as that applies op to each argument
     # separately not as the entire list of arguments.
@@ -87,7 +112,7 @@ function(fn, globals = TRUE, ...)
     col2 = collectArgInfo(fn, col = col, exit = substitute(fun(), list(fun = ex)), ...) # , .setTrace = .setTrace)
     e
 }
-
+}
 
 #########################
 
@@ -115,8 +140,9 @@ function(fn, globals = TRUE, len = 1000L, print = FALSE, ...)
     }
 
     # Function to add the result the current call.
-    updateResult = function(val)
+    updateResult = function(val) 
         calls[[ ctr ]]$.result <<- val
+
 
 
 
@@ -160,8 +186,53 @@ function(fn, globals = TRUE, len = 1000L, print = FALSE, ...)
 
       # So now we are ready to use these calls to trace the function.
     trace(fn, start, exit = end, print = print, ...)
-    
-    getCalls = function() 
-        calls[seq_len(ctr)]
 
+      # the return value from this function to access the results.
+      # It culls the result if trim is TRUE so that it reclaims memory
+    getCalls = function(trim = TRUE) {
+        ans = calls[seq_len(ctr)]
+        ans = lapply(ans, function(x) {class(x) = "CallResultInfo"; x})
+        class(ans) = "FunctionCallResults"
+        if(trim)
+           calls <<- ans
+
+        ans
+    }
 }
+
+
+
+testFunCall =
+function(x, fun, compare = identical, ...)    
+    UseMethod("testFunCall")
+
+testFunCall.CallResultInfo =
+function(x, fun, compare = identical, envir = globalenv(), ...)    
+{
+    # Get the result, then the global variables and remove each of these
+    # leaving only the arguments.
+    result = x$.result
+    x = x[-length(x)]
+
+    # If there are global variables collected in this call, then we set them in the 
+    gvs = x$.globals
+    e = new.env(parent = envir)
+    if(length(gvs) > 0) {
+        mapply(assign, names(gvs), gvs, MoreArgs = list(envir = envir))
+        x = x[-length(x)] # remove the .globals
+    }
+
+    # what if the new fun has a different set of parameters??
+
+    newResult = do.call(fun, x, envir = envir)
+    compare(newResult, result, ...)
+}
+
+
+testFunCall.FunctionCallResults =
+function(x, fun, compare = identical, ...)    
+{
+  lapply(x, testFunCall, fun, compare, ...)
+}
+
+

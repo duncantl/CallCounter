@@ -14,3 +14,7 @@ importFrom(CodeDepends, getInputs)
 export(collectCallResults)
 
 importFrom(codetools, findGlobals)
+
+export(testFunCall)
+S3method(testFunCall, CallResultInfo)
+S3method(testFunCall, FunctionCallResults)
