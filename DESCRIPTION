@@ -1,7 +1,7 @@
 Package: CallCounter
 Version: 0.2-0
-Title:  Run-time code measurement and debugging tools
-Description: Tools for instrumenting code.
+Title:  Run-time code measurement and tools for helping debugging 
+Description: Tools for instrumenting code, i.e., adding code to measure different characteristics of code.
  These include counting the number of calls to different functions, useful when profiling;
  collecting the call stack for each call to one or more functions;
  collecting information about each parameter in alll calls to one or more functions;

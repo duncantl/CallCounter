@@ -19,7 +19,14 @@ collectCallResults(fn, globals = TRUE, len = 1000L, print = FALSE, ...)
   given by name or symbol (character or name), and not computed as it is
   passed to \code{\link[base]{trace}}.}
   \item{globals}{either a scalar logical or a character vector giving
-  the names of global variables to also collect with each call.}
+    the names of global variables to also collect with each call.
+    The function uses \code{\link[codetools]{findGlobals}} to identify
+  the global variables. However, this does not always correctly identify
+  global variables (e.g. missing uses before a variable is defined
+  locally, including global functions used in, e.g., \code{lapply} calls.)
+   One can use the function \code{getGlobals} in
+  \code{CodeAnalysis} and pass the names of the global variables it find.
+  }
   \item{len}{a positive integer which provides a guess as to how many calls we'll see so that we can preallocate the list into which each call will be inserted.
     #   The goal is to avoid growing the list too often which slows down the computations.}
   \item{print}{passed as the value for \code{\link[base]{trace}}'s
