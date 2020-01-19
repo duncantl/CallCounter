@@ -54,6 +54,8 @@ f3 = function(x, y)
 }
 
 collectCallResults =
+    # Don't build on collectArgInfo() as that applies op to each argument
+    # separately not as the entire list of arguments.
 function(fn, globals = TRUE, ...)    
 {
     op = function(...) list(...)    
@@ -87,76 +89,23 @@ function(fn, globals = TRUE, ...)
 }
 
 
-
-
-collectCallResults =
-function(fn, globals = TRUE, ...)    
-{
-    op = function(...) list(...)
-
-    calls = list()
-    
-    op = function() {
-        k = list()
-        calls[[ length(calls) + 1L ]] <<- k
-    }
-
-    ex = function() {
-        calls[[ length(calls) ]]$.result <<- returnValue()
-    }
-    
-#browser()
-    p = names(formals(fn))
-    values = call("list")
-    values[seq(along.with = p) + 1L] = lapply(p, as.name)
-    names(values) = c("", p)
-    
-    if(is.logical(globals)) {
-        if(globals)
-            globals = codetools::findGlobals(get(fn), FALSE)$variables
-        else
-            globals = character()
-    }
-
-    
-    if(length(globals)) {
-        e = call("list")
-        e[seq(along.with = globals) + 1L] = lapply(globals, as.name)
-        names(e) = c("", globals)
-        values$.globals = e
-    }
-
-    body(op)[[2]][[3]] = values
-browser()
-    start = substitute(fun(), list(fun = op))    
-    end = substitute(fun(), list(fun = ex))
-    trace(fn, start, exit = end, print = FALSE)
-    
-    function()
-        calls
-}
-
-
 #########################
 
 collectCallResults =
-function(fn, globals = TRUE, len = 1000L, ...)    
+    #
+    # fn - the name of the function whose calls we are  going to collect.
+    # globals - either a scalar logical, or a character vector giving the names of the global variables
+    #    we should collect in the calls
+    # len - a guess as to how many calls we'll see so that we can preallocate the list into which each call will be inserted.
+    #   The goal is to avoid growing the list too often which slows down the computations.
+function(fn, globals = TRUE, len = 1000L, print = FALSE, ...)    
 {
-    op = function(...) list(...)
-
-    calls = list()
-    
-    op = function() {
-        k = list()
-        calls[[ length(calls) + 1L ]] <<- k
-    }
-
-    ex = function() {
-        calls[[ length(calls) ]]$.result <<- returnValue()
-    }
-
+        # The list into which we will insert each call and a counter that tells us where to insert the next value
     ctr = 0L
     calls = vector("list", len)
+
+    # Function to insert the arguments, called at the start of the function for each call.
+    # This grows the calls list if we reach the end, currently by doubling it.
     update = function(args) {
         if(ctr == length(calls))
             length(calls) = 2*length(calls)
@@ -164,20 +113,24 @@ function(fn, globals = TRUE, len = 1000L, ...)
         calls[[ ctr ]] <<- args
         ctr
     }
-    
+
+    # Function to add the result the current call.
     updateResult = function(val)
         calls[[ ctr ]]$.result <<- val
 
 
 
-    # Create a call to list() of the form
-    # list(a = a, b = b)
+    # Now we create the R code to call update() and updateResult() from within the
+    # function. So it has access arguments.
+    
+    # Create a call to list() of the form  list(a = a, b = b) with a named element for each of the parameters.
     p = names(formals(fn))
     values = call("list")
     values[seq(along.with = p) + 1L] = lapply(p, as.name)
     names(values) = c("", p)
 
-    # Then add the .globals = list(global1 = global1, global2 = global2)
+
+     # Check if we are asked to collect the global variables and if so, identify them if necessary.
     if(is.logical(globals)) {
         if(globals)
             globals = codetools::findGlobals(get(fn), FALSE)$variables
@@ -185,6 +138,9 @@ function(fn, globals = TRUE, len = 1000L, ...)
             globals = character()
     }
 
+    # Then add the global variables as an element named .globals and it is a single named list with an element for each
+    # of the global variables.
+    #   i.e.   .globals = list(global1 = global1, global2 = global2)    
     if(length(globals)) {
         e = call("list")
         e[seq(along.with = globals) + 1L] = lapply(globals, as.name)
@@ -192,13 +148,18 @@ function(fn, globals = TRUE, len = 1000L, ...)
         values$.globals = e
     }
 
+     # Now create calls to the update() and updateResult() functions.  These are in the current call frame
+     # so we create calls of the form
+     #    e$update(args)
+     # and insert the value of e directly into the call as e won't be in the call being traced.
     e = environment(update) # sys.frame(sys.nframe())
 
     start = substitute(e$update(), list(e = e))
     start[[2]] = values
     end = substitute(e$updateResult(returnValue()), list(e = e))    
 
-    trace(fn, start, exit = end, print = FALSE)
+      # So now we are ready to use these calls to trace the function.
+    trace(fn, start, exit = end, print = print, ...)
     
     getCalls = function() 
         calls[seq_len(ctr)]
