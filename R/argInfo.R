@@ -3,7 +3,7 @@
 
 collectArgInfo =
 function(fn, op = getParamInfo, print = FALSE, envir = globalenv(), 
-         col = genInfoCollectorFun(op, names(formals(f, envir))),
+         col = genInfoCollectorFun(op, names(formals(fn, envir))),
          ...)
 {
     if(!is.character(fn))

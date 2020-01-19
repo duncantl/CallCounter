@@ -12,4 +12,4 @@ Description: Tools for instrumenting code.
 License: BSD_3_clause + file LICENSE
 Author: Duncan Temple Lang
 Maintainer: Duncan Temple Lang <duncan@r-project.org>
-Imports: CodeDepends
+Imports: CodeDepends, codetools

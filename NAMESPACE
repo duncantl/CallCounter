@@ -12,3 +12,5 @@ export(seedChangeEval)
 importFrom(CodeDepends, getInputs)
 
 export(collectCallResults)
+
+importFrom(codetools, findGlobals)

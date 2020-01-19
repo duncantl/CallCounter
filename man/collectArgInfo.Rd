@@ -9,12 +9,12 @@
   queried using \code{\link{gatherArgInfo}}.
 }
 \usage{
-collectArgInfo(f, op = getParamInfo, print = FALSE, envir = globalenv(),
-               col = genInfoCollectorFun(op, names(formals(f, envir))),
+collectArgInfo(fn, op = getParamInfo, print = FALSE, envir = globalenv(),
+               col = genInfoCollectorFun(op, names(formals(fn, envir))),
                ...)
 }
 \arguments{
-  \item{f}{the name of the function to be trace, or the function itself}
+  \item{fn}{the name of the function to be trace, or the function itself}
   \item{op}{the function to be called for each argument in the call to
     get the information of interest.}
   \item{print}{a logical value passed to \code{\link[base]{trace}}

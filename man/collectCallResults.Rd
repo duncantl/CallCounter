@@ -47,14 +47,14 @@ names(envs) = funNames
 g(10)
 h(11, 201)
 
+#########
 
-
-
+global1 = 10
 global2 = 3.1415
 f3 = function(x, y)
         x + y + global1 + global2
 
-k3 = collectCallResults(f3)
+k3 = collectCallResults("f3")
 f3(10, 20)
 f3(101, 9)
 }
