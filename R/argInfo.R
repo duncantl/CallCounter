@@ -2,12 +2,15 @@
 # See CodeReview/ in the book.
 
 collectArgInfo =
-function(f, op = getParamInfo, envir = globalenv())
+function(fn, op = getParamInfo, print = FALSE, envir = globalenv(), 
+         col = genInfoCollectorFun(op, names(formals(f, envir))),
+         ...)
 {
-    f = deparse(substitute(f))
-    col = genInfoCollectorFun(op, names(formals(f)))
-    e = mkArgInfoExpr(get(f, envir), col$collector)
-    trace(f, e,  where = envir, print = FALSE)
+    if(!is.character(fn))
+       fn = deparse(substitute(fn))
+    
+    e = mkArgInfoExpr(get(fn, envir), col$collector)
+    trace(fn, e,  where = envir, print = print, ...)
     col$info
 }
 
