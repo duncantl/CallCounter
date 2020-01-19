@@ -10,3 +10,5 @@ export(timeEval, storeEval)
 export(seedChangeEval)
 
 importFrom(CodeDepends, getInputs)
+
+export(collectCallResults)
