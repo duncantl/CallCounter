@@ -2,8 +2,16 @@
 # See CodeReview/ in the book.
 
 collectArgInfo =
+    #
+    # Given a function, collect
+    #
+    #  op is only used in col's defaut value.
+    #
+    # len - (probably) the initial guess as to how many calls there will be so we can preallocate the result.
+    #
 function(fn, op = getParamInfo, print = FALSE, envir = globalenv(), 
-         col = genInfoCollectorFun(op, names(formals(fn, envir))),
+         col = genInfoCollectorFun(op, names(formals(fn, envir)), len = len),
+         len = 1e3,
          ...)
 {
     if(!is.character(fn))
@@ -29,14 +37,21 @@ function(fun, col)
 }
 
 genInfoCollectorFun =
-function(op, paramNames)
+function(op, paramNames, len = 1e3, growFactor = 2)
 {    
-   info = list()
-   f = function(...) 
-           info[[ length(info) + 1L ]] <<- lapply(list(...), op)
+    info = vector("list", len)
+    ctr = 0L
+    f = function(...)  {
+        ctr <<- ctr + 1L
+        if(ctr > length(info)) 
+            length(info) <<- growFactor*length(info)
+
+        info[[ ctr  ]] <<- lapply(list(...), op)
+       }
 
    list(collector = f,
         info = function(var = character()) {
+            info <<- info[seq_len(ctr)]
             ans = structure(info, class = "ArgInfoList")
             if(length(var))
                 gatherArgInfo(ans, var)
