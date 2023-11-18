@@ -123,7 +123,11 @@ collectCallResults =
     #    we should collect in the calls
     # len - a guess as to how many calls we'll see so that we can preallocate the list into which each call will be inserted.
     #   The goal is to avoid growing the list too often which slows down the computations.
-function(fn, globals = TRUE, len = 1000L, print = FALSE, ...)    
+    #
+    #  XXX handle options, environment variables, graphics parameters.
+    #
+    #
+function(fn, globals = TRUE, options = TRUE, environmentVariables = TRUE, graphicsParameters = TRUE, getState = NULL, len = 1000L, print = FALSE, ...)    
 {
         # The list into which we will insert each call and a counter that tells us where to insert the next value
     ctr = 0L
@@ -134,8 +138,14 @@ function(fn, globals = TRUE, len = 1000L, print = FALSE, ...)
     update = function(args) {
         if(ctr == length(calls))
             length(calls) = 2*length(calls)
+
+
+        tmp = list(arguments = args)
+        if(length(getState))
+            tmp$state = getState()
+        
         ctr <<- ctr + 1L
-        calls[[ ctr ]] <<- args
+        calls[[ ctr ]] <<- tmp
         ctr
     }
 
@@ -189,9 +199,15 @@ function(fn, globals = TRUE, len = 1000L, print = FALSE, ...)
 
       # the return value from this function to access the results.
       # It culls the result if trim is TRUE so that it reclaims memory
-    getCalls = function(trim = TRUE) {
-        ans = calls[seq_len(ctr)]
-        ans = lapply(ans, function(x) {class(x) = "CallResultInfo"; x})
+    getCalls = function(trim = TRUE, addClasses = TRUE) {
+        if(ctr == length(calls))
+            ans = calls
+        else
+            ans = calls[seq_len(ctr)]
+
+        if(addClasses)
+            ans = lapply(ans, function(x) {class(x) = "CallResultInfo"; x})
+        
         class(ans) = "FunctionCallResults"
         if(trim)
            calls <<- ans
@@ -200,7 +216,7 @@ function(fn, globals = TRUE, len = 1000L, print = FALSE, ...)
     }
 }
 
-
+#######################
 
 testFunCall =
 function(x, fun, compare = identical, ...)    
@@ -218,13 +234,13 @@ function(x, fun, compare = identical, envir = globalenv(), ...)
     gvs = x$.globals
     e = new.env(parent = envir)
     if(length(gvs) > 0) {
-        mapply(assign, names(gvs), gvs, MoreArgs = list(envir = envir))
+        mapply(assign, names(gvs), gvs, MoreArgs = list(envir = e))
         x = x[-length(x)] # remove the .globals
     }
 
     # what if the new fun has a different set of parameters??
 
-    newResult = do.call(fun, x, envir = envir)
+    newResult = do.call(fun, x, envir = e)
     compare(newResult, result, ...)
 }
 
@@ -234,5 +250,3 @@ function(x, fun, compare = identical, ...)
 {
   lapply(x, testFunCall, fun, compare, ...)
 }
-
-
