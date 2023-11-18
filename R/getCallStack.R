@@ -1,3 +1,12 @@
+collectCallStacks =
+function(fun, op = NULL, collector = genStackCollector(op, ncalls), ncalls = 1000L, print = FALSE, ...)
+{
+   origFun = fun
+   fun = deparse(substitute(fun))
+   trace(fun, collector$update, print = print, ...)
+   collector$value
+}
+
 genStackCollector =
 function(fun = NULL, num = 0, expansionFactor = 2)
 {
@@ -20,11 +29,11 @@ function(fun = NULL, num = 0, expansionFactor = 2)
         
     
     list(update = u,
-         value = function(reset = TRUE) {
-                     if(reset)
-                        reset()
-                     else
-                        calls[seq(length = ctr)]
+         value = function(reset = FALSE) {
+                  ans = calls[seq(length = ctr)]
+                  if(reset)
+                      reset()
+                  ans
     })
 
 }
