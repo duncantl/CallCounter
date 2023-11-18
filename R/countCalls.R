@@ -57,21 +57,54 @@ countMCalls =
     #
 function(..., counter = genMultiCounter(funNames), env = globalenv(), print = FALSE,
          funs = substitute(list(...))[-1],
-         funNames = sapply(funs, as.character))
+         funNames = sapply(funs, as.character), hide = FALSE)
 {
  #    k = sys.call() m = match.call(countMCalls, k)
     
     f = counter$inc
     e = substitute(trace(fun, quote((f)(name)), print = print), list(f = f, print = print))
+    #XXX
+    if(!missing(funNames) && (missing(funs) || length(funs) == 0))
+        funs = funNames
 
-    for(i in seq(along = funs)) {
-        e[[2]] = funs[[i]]
-        e[[3]] [[2]][[2]] = as.character(funs[[i]])
-        eval(e, env)
-    }
-    counter
+
+    if(hide) {
+        # This could be dangerous as an error with an options(error = recover) in place will
+        # just show
+        #    Selection:
+        # with  no context and the user will have to call sink(). This is too much to know.
+        # tryCatch() will ensure the capture.output exit handlers are called first (?)
+        # and then we raise the error again.
+        # Not ideal.  Is capture.output() sub-optimally designed, i.e., could it be better?
+        tryCatch(
+            capture.output( capture.output( setMTraces(funs, e, env) , type = "message"), type = "output" ),
+            error = function(e) {
+                stop(e)
+            })
+
+    } else
+        setMTraces(funs, e, env)
+
+    counter$value
 }
 
+setMTraces =
+function(funs, e, env)
+{
+    for(i in seq(along = funs)) {
+        e[[2]] = funs[[i]]
+        e[[3]] [[2]] [[2]] = as.character(funs[[i]])
+        eval(e, env)
+    }
+}
+
+
+if(FALSE) 
+hideOutputEval =
+function(e, env)
+{
+    invisible( capture.output( capture.output( eval(e, env) , type = "message"), type = "output" ))
+}
 
 
 if(FALSE) {
