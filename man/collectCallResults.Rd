@@ -25,7 +25,7 @@ collectCallResults(fn, globals = TRUE, len = 1000L, print = FALSE, ...)
   global variables (e.g. missing uses before a variable is defined
   locally, including global functions used in, e.g., \code{lapply} calls.)
    One can use the function \code{getGlobals} in
-  \code{CodeAnalysis} and pass the names of the global variables it find.
+  \code{CodeAnalysis} and pass the names of the global variables it finds.
   }
   \item{len}{a positive integer which provides a guess as to how many calls we'll see so that we can preallocate the list into which each call will be inserted.
     #   The goal is to avoid growing the list too often which slows down the computations.}
@@ -54,6 +54,9 @@ names(envs) = funNames
 g(10)
 h(11, 201)
 
+calls = lapply(envs, function(f) f())
+sapply(calls, length)
+
 #########
 
 global1 = 10
@@ -64,6 +67,8 @@ f3 = function(x, y)
 k3 = collectCallResults("f3")
 f3(10, 20)
 f3(101, 9)
+
+k3calls = k3()
 }
 \keyword{programming}
 \keyword{utilities}

@@ -17,7 +17,7 @@ genStackCollector(fun = NULL, num = 0, expansionFactor = 2)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{fun}{the name of teh function that we will \code{trace} to find
+  \item{fun}{the name of the function that we will \code{trace} to find
     the call stacks}
   \item{num}{a guess as to the number of calls to this function so that
   we can preallocate the \code{list} in which we store the call stack

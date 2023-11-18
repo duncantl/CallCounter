@@ -36,12 +36,11 @@ collectArgInfo(fn, op = getParamInfo, print = FALSE, envir = globalenv(),
   \code{\link{gatherArgInfo}}
   for you.
 }
-
 \author{
 Duncan Temple Lang
 }
 \seealso{
-  \code{\link[base]{trace}}
+ \code{\link[base]{trace}}
 }
 \examples{
 g = function(a, b = 2){ invisible(list(length(a), class(b))) }
